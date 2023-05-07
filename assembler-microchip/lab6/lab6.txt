@@ -1,0 +1,292 @@
+.dseg //указатель на сегмент данных
+.include "m32adef.inc"
+.def clk1 = r16 ; для заполнения массивов при ините
+.def clk2 = r17 ;
+.def temp = r20 ; переменная для временных штук
+.def mode = r21 ; выбор режима
+.def action = r22 ; переменная для прерывания операции
+.def count_crossing = r23 // количество совпадений
+
+.set sizeAB = 8 //размер массивов A, B и C
+.org 0x60 //начальный адрес
+mas_a: .byte sizeAB
+mas_b: .byte sizeAB
+.org 0x75
+mas_c: .byte sizeAB //выделим под массив C 8 байт
+
+.cseg
+.org 0x00 rjmp Init
+.org INT0addr rjmp P_INT0
+.org INT1addr rjmp P_INT1
+.org OC0addr rjmp t_oc_shim
+.org OVF0addr rjmp T_OWF
+
+Init:
+	; Стек
+	ldi	temp,	low(RAMEND)
+	out	SPL,	temp
+	ldi	temp,	high(RAMEND)
+	out	SPH,	temp
+
+	; Таймер
+	clr temp
+	out TCCR0,	temp ; Стоп таймер
+
+	; Кнопки
+	ldi temp,	0b00001111
+	out MCUCR,	temp ; Через MCUCR установлены фронты (оба по нарастающему)
+	ldi temp,	0b11000000
+	out GICR,	temp ; Через GICR разрешены прерывания
+	sei
+
+	; Светодиоды
+	ser	temp
+	out	DDRB,	temp
+	ldi mode,	0b11111101 ; Изначальный режим - 1
+	out PORTB,	mode
+
+	; Регистровые пары
+	ldi ZL,		low(mas_a) // Z
+	ldi ZH,		high(mas_a)
+
+	ldi YL,		low(mas_b) // Y
+	ldi YH,		high(mas_b)
+
+	ldi XL,		low(mas_c) // X
+	ldi XH,		high(mas_c)
+
+	ldi r18,	10  ; число для заполнения массива А
+	ldi r19,	1	; число для заполнения массива B
+	ldi clk1,	sizeAB // счетчик 
+	
+	MASAB:			; заполняем массив A
+	st z+,		r18
+	dec r18
+	st y+,		r19
+	inc r19
+	dec clk1
+	brne MASAB 
+
+	/* Заполнение массива C */
+	ldi ZL,	low(mas_a)		; Z, адрес массива А
+	ldi ZH,	high(mas_a)
+
+	ldi clk1,	sizeAB		; счетчик цикла 1
+	ldi count_crossing, 0	; кол-во элементов в mas_c
+
+	FILL_ARR_C:
+		ldi YL,	low(mas_b)	; Y, адрес массива B
+		ldi YH,	high(mas_b)
+		ld r18,	z+
+		ldi clk2, sizeAB	; счетчик цикла 2
+		FILL_ARR_C2:
+			ld r19,	y+
+			cp r18,	r19
+			breq EQUALS		; r19 != r18, тогда
+			dec clk2
+			brne FILL_ARR_C2; Если элементы цикл не завершен, то след. элем
+			rjmp CHECK_TO_CONT
+		EQUALS:
+			st x+,	r19		; если числа одинаковы, то записываем
+			inc count_crossing
+			rjmp CHECK_TO_CONT
+		CHECK_TO_CONT:
+			dec clk1
+			brne FILL_ARR_C
+
+; главная часть, где крутится программа
+	ldi mode,		0b11111110			; Изначальный режим - 1
+	ldi action,		0b00000000			; Изначальный состояние - 0
+
+	ldi XL,			low(mas_c)			; X
+	ldi XH,			high(mas_c)
+
+Main:
+	; Вывод или выполнение?
+	cpi action,		0b00000000		; если действия.нет, то 
+	breq show_mode						; выводим на светодиоды мод
+
+	; Выполняем выбранный режим
+	sbrs mode,		0 ; вывод элементов
+	call main_elems
+	sbrs mode,		1 ; генерация шим
+	call main_shim
+	sbrs mode,		2 ; генерация чим
+	call main_chim
+	rjmp Main
+	
+	; Вывод мода на диоды
+show_mode:
+	out PORTB,		mode
+	rjmp Main
+
+; вывод элементов
+main_elems:
+	clr temp
+	out TCNT0, temp
+
+	ldi temp, (1<<TOIE0)				; прерывание по переполнению
+	out TIMSK, temp
+
+	clr temp
+	ldi temp, (1<<CS02)|(1<<CS00)		; предделитель на 1024
+	out TCCR0, temp
+
+	mov clk1,		count_crossing
+	ldi XL,			low(mas_c) // X
+	ldi XH,			high(mas_c)
+
+	elems_cycle:
+	cpi action, 0b00000000				; выключение
+	brne elems_cycle
+
+	clr temp							; выкл таймер
+	out TCCR0, temp
+	ret
+
+; Шим (пилообразный)
+main_shim:
+	ldi temp, 0xFF						; загрузка числа сравнения
+    out OCR0, temp
+
+    ldi temp, (1<<OCIE0)|(1<<TOIE0)		; разрешить прерывание по сравнению и переполнению
+    out TIMSK, temp
+
+    ldi temp, 0b00000010				; предделитель на 8 + шим с коррекцией фазы 
+    out TCCR0, temp						; старт таймера
+
+    clr clk1							; начальное значение диодов
+    clr clk2							; число сравнения
+
+    shim_cycle:
+	cpi action, 0b00000000				; пока не отключат
+	brne shim_cycle
+
+	clr temp							; выкл таймер
+	out TCCR0, temp
+	ret
+
+; Чим (треугольный)
+main_chim:
+	clr clk1							; начальное значение диодов
+    clr clk2							; начальное число отсчёта
+
+    ldi temp, (1<<TOIE0)				; разрешить прерывание по переполнению
+    out TIMSK, temp
+
+    ldi temp, 0b00000100				; предделитель на 8
+    out TCCR0, temp						; старт таймера
+
+    chim_cycle:
+	cpi action, 0b00000000				; пока не отключат
+	brne chim_cycle
+
+	clr temp							; выкл таймер
+	out TCCR0, temp
+	ret
+
+; Прерывание по кнопке sw2
+P_INT0:									; кнопка Х - выбираем режим
+	cpi action, 0b00000001				; если что-то выполняется
+	breq int0_ret						; ничего не меняем
+
+	; А если все ок, то меняем режим
+	cpi mode, 0b11111110 
+	breq next_mode_shim					; на генерацию шим
+	cpi mode, 0b11111101 
+	breq next_mode_chim					; на генерацию чим
+	cpi mode, 0b11111011 
+	breq next_mode_out					; на вывод элементов
+
+next_mode_shim:
+	ldi mode, 0b11111101
+	rjmp int0_ret
+
+next_mode_chim:
+	ldi mode, 0b11111011
+	rjmp int0_ret
+
+next_mode_out:
+	ldi mode, 0b11111110
+
+int0_ret:
+	reti
+
+; Прерывание по кнопке sw3
+P_INT1:									; кнопка Y - запуск/стоп режим
+	cpi action, 0b00000001				; если ничего не выполняется
+	brne int1_start						; то начинаем
+
+	ldi action, 0b00000000				; иначе прекращаем все
+	rjmp int1_ret
+
+int1_start:
+	ldi action, 0b00000001
+
+int1_ret:
+	reti
+
+
+; прерывание по переполнению таймера
+T_OWF:
+	cpi mode,	0b11111110				; обработка таймера вывода элементов
+	breq t_owf_elems
+	cpi mode,	0b11111101				; обработка таймера генерации шим
+	breq t_owf_shim
+	cpi mode,	0b11111011				; обработка таймера генерации чим
+	breq t_owf_chim
+	reti
+
+t_owf_elems:
+	ld temp, x+							; загрузить элемент массива С
+	com temp
+	out PORTB, temp						; вывести его на светодиоды
+
+	dec clk1
+    breq t_elems_cycle 
+    reti
+
+    ; Обновляем состояние регистров
+    t_elems_cycle:
+	mov clk1,		count_crossing 
+    ldi XL,			low(mas_c) // X
+	ldi XH,			high(mas_c)
+    reti
+
+
+; Пилообразный ШИМ
+t_owf_shim:
+    com clk1 ; выключение светодиодов
+    out PORTB, clk1
+
+    dec clk2
+    out OCR0, clk2
+    reti
+
+t_oc_shim:
+	com clk1 ; включение светодиодов
+    out PORTB, clk1
+    reti
+
+; Треугольный ЧИМ
+t_owf_chim:
+    com clk1
+    out PORTB, clk1
+
+    cpi clk2, 0x00
+    brne chim_not_z
+    ldi action, 0b00000011
+
+chim_not_z:
+    cpi clk2, 0xff
+    brne chim_not_f
+    ldi action, 0b00000001
+
+chim_not_f:
+    sbrs action, 1 ; если вниз, то отнимаем
+    dec clk2
+    sbrc action, 1 ; если вверх, то прибавляем
+    inc clk2
+
+    out TCNT0, clk2 ; меняем стартовое число
+    reti

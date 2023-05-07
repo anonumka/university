@@ -1,0 +1,71 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.post {
+	min-height: 30%;
+	max-height: 75%;
+	width: 32.8%;
+
+	margin: 5px;
+	background-color: #9caab9;
+	
+	display:inline-block;
+	box-sizing: border-box;
+	
+	padding: 30px;
+}
+
+.post span {
+	display: flex;
+    justify-content: space-between;
+}
+
+.post img {
+	width: 300px;
+	height: 300px;
+	
+	object-fit: cover;
+	object-position: 100% 100%;
+}
+
+.description {
+	height: 54px;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+
+.trash_icon {
+    width: 15px;
+	height: 15px;
+}
+
+.author {
+	font-size: 12px;
+	font-weight: bold;
+	color: #666;
+}
+
+#pages {
+    margin: 0 23px;
+	border-radius: 25%;
+
+	display:inline-block;
+	box-sizing: border-box;
+
+	background-color: #9caab9;
+}
+
+#pages a {
+	margin: 10px 20px;
+	padding-bottom: 10px;
+
+	color: #000;
+    text-decoration: none;
+}

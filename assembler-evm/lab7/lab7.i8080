@@ -1,0 +1,262 @@
+.adr:0x0000
+Init:
+				CALL Init_Oxy
+				IN 0x08
+				MOV B, A
+				IN 0x08
+				MOV C, A
+				CALL Init_Screen
+Main:
+				MOV A, C
+				OUT 0x02
+				STC
+				CMC
+				CMP B
+				JC small
+				CALL check_end
+				INR C
+				CALL Draw_Up
+				CALL check_end
+				CALL Delay
+				DCR C
+				CALL Draw_Down
+				CALL check_end
+				CALL Delay
+				DCR C
+				CALL Draw_Down
+				CALL Delay
+				JMP Main
+small:
+				CALL check_end
+				INR C
+				CALL Draw_Up
+				CALL Delay
+				JMP Main
+End:
+				HLT
+
+.adr:0x01200
+Draw_Up:
+				INR H
+				DCR L
+				CALL draw_pix
+				INR H
+				DCR L
+				CALL draw_pix
+				DCR L
+				CALL draw_pix
+				
+				INR H
+				DCR L
+				CALL draw_pix
+				INR H
+				DCR L
+				CALL draw_pix
+				DCR L
+				CALL draw_pix
+				
+				INR H
+				DCR L
+				CALL draw_pix
+				DCR L
+				CALL draw_pix
+				
+				INR H
+				DCR L
+				CALL draw_pix
+				INR H
+				DCR L
+				CALL draw_pix
+				DCR L
+				CALL draw_pix
+				
+				INR H
+				DCR L
+				CALL draw_pix
+				
+				RET
+				
+Draw_Down:
+				INR H
+				INR L
+				CALL draw_pix
+				INR H
+				INR L
+				CALL draw_pix
+				INR L
+				CALL draw_pix
+				
+				INR H
+				INR L
+				CALL draw_pix
+				INR H
+				INR L
+				CALL draw_pix
+				INR L
+				CALL draw_pix
+				
+				INR H
+				INR L
+				CALL draw_pix
+				INR L
+				CALL draw_pix
+				
+				INR H
+				INR L
+				CALL draw_pix
+				INR H
+				INR L
+				CALL draw_pix
+				INR L
+				CALL draw_pix
+				
+				INR H
+				INR L
+				CALL draw_pix
+				
+				RET
+		
+draw_pix:
+				MOV A, L
+				OUT 0x05
+				MOV A, H
+				OUT 0x05
+				MVI A, 0x00
+				OUT 0x05
+				MVI A, 0b11111000
+				OUT 0x05
+				RET
+				
+Init_Screen:
+				MVI H, 0x0F
+				MOV D, A
+				MVI A, 0xEF
+Init_Height:
+				SUI 0x0C
+				STC
+				CMC
+				DCR D
+				JNZ Init_Height
+				MOV L, A
+				
+				MOV D, B
+				MVI A, 0xEF
+Red_Line:
+				SUI 0x0C
+				STC
+				CMC
+				DCR D
+				JNZ Red_Line
+				MOV D, A
+				
+				MOV E, H
+				INR E
+Draw_Red_Line:
+				CALL draw_pix2
+				INR E
+				JNZ Draw_Red_Line
+				RET
+				
+draw_pix2:
+				MOV A, D
+				OUT 0x05
+				MOV A, E
+				OUT 0x05
+				MVI A, 0x00
+				OUT 0x05
+				MVI A, 0b11000000
+				OUT 0x05
+				RET
+
+Init_Oxy:
+				MVI D, 0x00
+				MVI E, 0x0F
+Draw_Ox:
+				CALL draw_pix3
+				INR D
+				JNZ Draw_Ox
+				MVI E, 0x00
+				MVI D, 0xEF
+Draw_Oy:
+				CALL draw_pix3
+				INR E
+				JNZ Draw_Oy
+
+				MVI D, 0xEE
+				MVI E, 0xFE
+				CALL draw_pix3
+				MVI D, 0xF0
+				CALL draw_pix3
+
+				MVI D, 0xED
+				MVI E, 0xFD
+				CALL draw_pix3
+				MVI D, 0xF1
+				CALL draw_pix3
+
+				MVI D, 0xEC
+				MVI E, 0xFC
+				CALL draw_pix3
+				MVI D, 0xF2
+				CALL draw_pix3
+
+				MVI D, 0xEB
+				MVI E, 0xFB
+				CALL draw_pix3
+				MVI D, 0xF3
+				CALL draw_pix3
+
+				
+				MVI D, 0x01
+				MVI E, 0x0E
+				CALL draw_pix3
+				MVI E, 0x10
+				CALL draw_pix3
+
+				MVI D, 0x02
+				MVI E, 0x0D
+				CALL draw_pix3
+				MVI E, 0x11
+				CALL draw_pix3
+
+				MVI D, 0x03
+				MVI E, 0x0C
+				CALL draw_pix3
+				MVI E, 0x12
+				CALL draw_pix3
+
+				MVI D, 0x04
+				MVI E, 0x0B
+				CALL draw_pix3
+				MVI E, 0x13
+				CALL draw_pix3
+
+				RET
+
+draw_pix3:
+				MOV A, D
+				OUT 0x05
+				MOV A, E
+				OUT 0x05
+				MVI A, 0x00
+				OUT 0x05
+				MVI A, 0b00011110
+				OUT 0x05
+				RET
+				
+check_end:
+				STC
+				CMC
+				MOV A, H
+				CPI 0xFF
+				JNC end
+				RET
+Delay:
+				MVI a, 100
+				OUT 0x16
+				MVI a, 0
+DelayLoop:
+				IN 0x16
+				CPI 0x00
+				JNZ DelayLoop
+				RET

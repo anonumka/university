@@ -1,0 +1,49 @@
+<html>
+<head>
+    <title>Lab9: {{title}}</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+            <div>
+                <img src="img/logo.png">
+            </div>
+            <nav id="nav_header">
+                <a class="nav_link" href="/">Главная</a>
+                <a class="nav_link" href="/create_ad">Создать объявление</a>
+                <a class="nav_link" href="/search">Поиск</a>
+            </nav>
+        </div>
+       
+    </header>
+
+    <div id="output_information">
+        {{{info}}}
+    </div>
+
+    <footer>
+        <nav id="nav_footer">
+            <a class="nav_link" target="_blank" href="https://vk.com/poshliy_denchik"><img src="img/vk.png"></a>
+            <a class="nav_link" target="_blank" href="https://t.me/Anonumka"><img src="img/telegram.png"></a>
+            <a class="nav_link" target="_blank" href="https://github.com/anonumka"><img src="img/github.png"></a>
+        </nav>
+    </footer>
+    <script type='text/javascript'>
+    document.addEventListener('click', ({ target: t }) => {
+	  if (t.tagName === 'BUTTON') {
+		console.log(t.closest('button')?.value);
+		$.ajax({ 
+      		url: "/delete", 
+       		method: "post",
+       		dataType: "html",
+    		data: {"id": t.closest('button')?.value},
+       		success: function(data) {
+ 				window.location.reload();
+       		} 
+ 		});
+	  }
+	});
+    </script>
+</body>
+</html>

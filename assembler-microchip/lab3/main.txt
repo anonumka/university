@@ -1,0 +1,30 @@
+.include "m32adef.inc"
+.def temp = r16
+.def temp2 = r19
+.def delay = r17
+.def delay2 = r18
+
+; Replace with your application code
+RESET:
+	ser temp
+	out ddrb, temp
+	ldi temp, 0b01010101
+	ldi r19, 0x00
+
+LOOP:
+	out portb, temp
+	sbis pind,0x03
+	rol temp
+	sbis pind,0x02
+	dec temp
+	sbis pind,0x01
+	inc temp
+	sbis pind,0x00
+	ror temp
+
+DLY:
+	dec delay
+	brne DLY
+	dec delay2
+	brne DLY
+	rjmp LOOP

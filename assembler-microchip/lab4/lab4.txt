@@ -1,0 +1,48 @@
+.include "m32adef.inc"
+
+.def temp = r16
+.def diods = r17
+.def sum = r18
+.def delay = r19
+.def delay2 = r20
+
+.cseg
+.org $000 rjmp Init ;
+.org INT0addr rjmp P_INT0 ;
+.org INT1addr rjmp P_INT1 ;
+
+Init:
+	ldi temp, low(RAMEND)
+	out SPL, temp
+	ldi temp, high(RAMEND)
+	out SPH, temp
+	ser temp
+	out DDRB, temp
+	out PORTB, temp
+	ser diods
+	sei
+	ldi temp, 0b00001011
+	out MCUCR, temp
+	ldi temp, 0b11000000
+	out GICR, temp
+	ldi diods, 0xFF
+	ser temp
+	mov sum, temp
+
+main:
+	out PORTB, diods
+	rjmp main
+
+DLY:
+	dec delay
+	brne DLY
+	dec delay2
+	brne DLY
+
+P_INT0:
+	mov diods, sum	
+	reti
+
+P_INT1:
+	dec sum
+	reti

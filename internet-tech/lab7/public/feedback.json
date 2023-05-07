@@ -1,0 +1,4 @@
+{
+	"title": "Feedback",
+	"info": "<h1>Связь с нами</h1><p>Если вам понравилась наша страница или разрабатываемые нами программы и вам хочется устроиться в нашу компанию, то заполните форму ниже.</p><form action=\"jobApplication\" method=\"POST\">Ваше имя: <input type=\"text\" name=\"inputUser\"><br />Ваш пол: М <input type=\"radio\" name=\"radioUser1\"> Ж <input type=\"radio\" name=\"radioUser2\"><br />Вам есть 18 лет? <input type=\"checkbox\" name=\"checkboxUser\"><br /><button>Отправить</button></form>"
+}

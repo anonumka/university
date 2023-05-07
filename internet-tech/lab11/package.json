@@ -1,0 +1,15 @@
+{
+  "name": "lab11",
+  "version": "1.0.0",
+  "description": "",
+  "main": "API_app.js",
+  "scripts": {
+    "test": "node API_app.js"
+  },
+  "author": "denchik and vladik",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,210 @@
+.adr:0x0000
+; Инициализация
+				LXI H, 0x11FA
+				MVI M, 0xFE
+				INX H
+				MVI M, 0x09
+				LXI H, 0x1600
+				MVI C, 0x00
+
+; Задание 1
+; Генерация псевдоравномерному закону распределения
+Gen_Uniform:
+				CALL Gen_Num
+				MOV M, A
+				INX H
+				PUSH H
+				MVI H, 0x17
+				MOV L, A
+				INR M
+				POP H
+				INR C
+				JNZ Gen_Uniform
+; Построить гистограмму
+				LXI H, 0x1700
+				CALL hist_screen
+
+; Задание 2
+; Генерация псевдонормально распределенной последовательности
+				LXI H, 0x1600
+				MVI C, 0x00
+Gen_Normal:
+				MVI E, 0x10
+				MVI B, 0x00
+sum_number:
+				PUSH D
+				CALL Gen_Num
+				POP D
+				ADD B
+				MOV B, A
+				DCR E
+				JNZ sum_number
+				MVI E, 0x04
+				MOV A, B
+right_shift:
+				STC
+				CMC
+				RAR
+				DCR E
+				JNZ right_shift
+; Создание нового массива для второго графика
+				PUSH H
+				LXI H, 0x1800
+				MOV L, C
+				MOV M, A
+				POP H
+				INX H
+				INR C
+				JNZ Gen_Normal
+; Заполнение нового массива
+				MVI B, 0x19
+				MVI C, 0x00
+				LXI H, 0x1800
+				MVI A, 0x00
+				CALL next_num
+; Построить вторую гистрограмму
+				LXI H, 0x1900
+				CALL hist_screen2
+				HLT
+				
+; Все подфункции
+; Генератор чисел
+.adr:0x1200
+Gen_Num:
+				PUSH H
+				LXI H, 0x11fa
+				MOV E, M
+				INX H
+				MOV D, M
+				LXI H, 0x0000
+				MVI A, 0x05
+Gen_Num_Step:
+				DAD D
+				DCR A
+				JNZ Gen_Num_Step
+				MVI D, 0x00
+				MVI E, 0x07
+				DAD D
+				MOV D, H
+				MOV E, L
+				LXI H, 0x11fa
+				MOV M, E
+				INX H
+				MOV M, D
+				MOV A, D
+				ANI 0x0f
+				POP H
+				RET
+
+; Вывод гистограммы 1
+.adr:0x1230
+hist_screen:
+				MVI D, 0x00
+hist_step:
+				MOV A, M
+				STC
+				CMC
+				RAR
+				MOV C, A
+				INX H
+				MOV A, D
+				ADI 0x10
+				MOV E, A
+hist_y_step:
+				MVI A, 0x80
+				SUB C
+				MOV B, A
+hist_x_step:
+				CALL draw_pix
+				INR B
+				MOV A, B
+				CPI 0x80
+				JNZ hist_x_step
+				DCR E
+				MOV A, E
+				CMP D
+				JNZ hist_y_step
+				MOV A, D
+				ADI 0x10
+				MOV D, A
+				JNC hist_step
+				RET
+
+; Вывести пиксель на первом графике
+.adr:0x1260
+draw_pix:
+				MOV A, B
+				OUT 0x05
+				MOV A, E
+				OUT 0x05
+				MVI A, 0x00
+				OUT 0x05
+				MVI A, 0b00000111
+				OUT 0x05
+				RET
+
+; Заполнение массива для графики
+.adr:0x1300
+next_num:
+				PUSH H
+				MOV E, M
+				MOV H, B
+				MOV L, C
+				MVI D, 0x00
+				DAD D
+				INR M
+				POP H
+				INX H
+				INR A
+				JNZ next_num
+				RET
+
+; Вывод гистограммы 2
+.adr:0x1350
+hist_screen2:
+				MVI D, 0x00
+hist_step2:
+				MOV A, M
+				INX H
+				STC
+				CMC
+				RAR
+				CPI 0x00
+				JZ hist_next_step
+				MOV C, A
+				MOV A, D
+				ADI 0x10
+				MOV E, A
+hist_y_step2:
+				MVI A, 0xFF
+				SUB C
+				MOV B, A
+hist_x_step2:
+				CALL draw_pix2
+				INR B
+				MOV A, B
+				CPI 0xFF
+				JNZ hist_x_step2
+				DCR E
+				MOV A, E
+				CMP D
+				JNZ hist_y_step2
+hist_next_step:
+				MOV A, D
+				ADI 0x10
+				MOV D, A
+				JNC hist_step2
+				RET
+
+; Вывести пиксель на втором графике
+.adr:0x1400
+draw_pix2:
+				MOV A, B
+				OUT 0x05
+				MOV A, E
+				OUT 0x05
+				MVI A, 0x00
+				OUT 0x05
+				MVI A, 0b11111000
+				OUT 0x05
+				RET

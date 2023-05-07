@@ -1,0 +1,77 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family:'Gill Sans', sans-serif;
+	
+}
+
+.description {
+	height: 54px;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+
+.trash_icon {
+    width: 15px;
+	height: 15px;
+}
+
+.author {
+	font-size: 12px;
+	font-weight: bold;
+	color: #666;
+}
+
+.post {
+	min-height: 30%;
+	max-height: 75%;
+	width: 32.8%;
+
+	margin: 5px;
+	background-color: pink;
+	
+	display:inline-block;
+	box-sizing: border-box;
+	
+	padding: 30px;
+}
+
+.post span {
+	display: flex;
+    justify-content: space-between;
+}
+
+.output_information {
+    height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.main_part {
+    display: flex;
+	flex-direction: column;
+	margin-left: 85vh;
+    padding: 3% 0;
+}
+
+.photo_prof {
+    width: 300px;
+	height: 300px;
+}
+
+.trash_icon {
+    width: 50px;
+	height: 50px;
+
+    display: flex;
+    justify-content: space-between;
+}

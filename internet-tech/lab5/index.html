@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Лабораторная работа 5</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+	<meta charset="utf-8">
+</head>
+<body>
+	<div id="main">
+		<h2>Галлерея из JSON</h2>
+		<div id="buttonBlock" align="right">
+			<button id="buttonLoad">Загрузить данные</button>
+			<button id="buttonBlind">Эффект Blind</button>
+		</div>
+		<div class="progressBar"></div>
+		<div id="image-collection"></div>
+	</div>
+	
+	<div id="other">
+		<h2>Остальная часть работы</h2>
+		<h3>Меню типа "аккордион"</h3>
+		<div class="accord">
+			<ul class="accordion" data-accordion="open">
+				<li>
+					<div class="accordion-header">Первый</div>
+					<div class="accordion-body">В первом нет информации</div>
+				</li>
+				<li>
+					<div class="accordion-header">Второй</div>
+					<div class="accordion-body">Во втором также нет информации</div>
+				</li>
+				<li>
+					<div class="accordion-header">Третий</div>
+					<div class="accordion-body">Ну и в третьем тоже нет информации</div>
+				</li>
+			</ul>
+		</div>
+		
+		<h3>Изображения по категориям</h3>
+		<div id="center-tabs">
+			<div id="tabs">
+				<ul>
+					<li><a href="#tabs-1">Коты</a></li>
+					<li><a href="#tabs-2">Собаки</a></li>
+					<li><a href="#tabs-3">Обезьяны</a></li>
+				</ul>
+				<div id="tabs-1">
+					<img class="tab-img" src="images/images-categories/cat1.jpg">
+					<img class="tab-img" src="images/images-categories/cat2.png">
+					<img class="tab-img" src="images/images-categories/cat3.jpg">
+					<img class="tab-img" src="images/images-categories/cat4.jpg">
+				</div>
+				<div id="tabs-2">
+					<img class="tab-img" src="images/images-categories/dog1.jpg">
+					<img class="tab-img" src="images/images-categories/dog2.jpg">
+					<img class="tab-img" src="images/images-categories/dog3.jpeg">
+					<img class="tab-img" src="images/images-categories/dog4.jpg">
+				</div>
+				<div id="tabs-3">
+					<img class="tab-img" src="images/images-categories/monkey1.jpg">
+					<img class="tab-img" src="images/images-categories/monkey2.jpg">
+					<img class="tab-img" src="images/images-categories/monkey3.png">
+					<img class="tab-img" src="images/images-categories/monkey4.jpg">
+				</div>
+			</div>
+		</div>
+		
+		<div id="date-check">
+			<h3>Выбрать дату</h3>
+			<p>Дата: <input type="text" id="datepicker"> </p>
+		</div>
+	</div>
+	
+	<div id="sliders">
+	<h3 align="center">Слайдеры</h3>
+		<div id="block-for-slider">
+			<div id="viewport">
+				<ul id="slidewrapper">
+					<li class="slide"><img src="images/sliders/1.png" alt="1" class="slide-img"></li>
+					<li class="slide"><img src="images/sliders/2.png" alt="2" class="slide-img"></li>
+					<li class="slide"><img src="images/sliders/3.png" alt="3" class="slide-img"></li>
+					<li class="slide"><img src="images/sliders/4.png" alt="4" class="slide-img"></li>
+				</ul>
+	
+				<div id="prev-next-btns">
+					<div id="prev-btn"></div>
+					<div id="next-btn"></div>
+				</div>
+	
+				<ul id="nav-btns">
+					<li class="slide-nav-btn"></li>
+					<li class="slide-nav-btn"></li>
+					<li class="slide-nav-btn"></li>
+					<li class="slide-nav-btn"></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+@media (max-width: 1250px) {
+	body {
+		background-color: #eee;
+	}
+}
+
+body {
+    margin: 0;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    line-height: 1.6;
+    font-size: 15px;
+    color: #333;
+	
+	height: 1200px;
+}
+
+ol {
+    list-style-type: none;  
+}
+
+ul {
+    list-style-type: none;  
+}
+
+input::placeholder {
+	color: #555;
+	font-size: 0.8em;
+}
+
+.header {
+    width: 100%;
+    padding-top: 30px;
+    padding-left: 10%;
+    
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.nav_link {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 23px;
+    position: relative;
+    
+    color: #000;
+    text-decoration: none;
+    
+    transition: color .1s linear;
+}
+
+.nav_link:hover {
+    color: #aaa;   
+}
+
+.nav_link:hover:after{
+    opacity: 1;
+    border-bottom: 3px solid #aaa;
+}
+
+.first_text {
+    padding-left: 20%;
+	padding-top: 5%;
+}
+
+.auth {
+    padding-top: 1%;
+    padding-left: 20%;
+}
+
+.auth li {
+	list-style-type:none;
+}
+
+.auth_text {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 23px;
+    position: relative;
+    
+    color: #000;
+    text-decoration: none;
+    
+    transition: color .1s linear;
+}
+
+.auth button {
+    top: 1%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.auth_img {
+    width: calc(2% + 10px);
+    transform: translateY(5px);
+}
+
+.demo_box {
+    padding-top: 5%;
+    padding-left: 25%;
+}
+
+.text_demo {
+    padding-left: -2%;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.box {
+    width: 50px;
+    height: 50px;
+    border-radius: 60%;
+    background: #333;
+    position: relative;
+    animation: move_box 4s infinite;
+}
+
+@keyframes move_box {
+    0%   {top: 0px; left: 50px; background: #333;}
+    25%  {top: 50px; left: 100px; background: #333;}
+    50%  {top: 100px; left: 50px; background: #333;}
+    75%  {top: 50px; left: 0px; background: #333;}
+    100% {top: 0px; left: 50px; background: #333;}
+}
+
+.changes_imgs {
+	padding-top: 5%;
+}

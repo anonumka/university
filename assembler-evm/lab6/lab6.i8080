@@ -1,0 +1,151 @@
+.adr:0x0000
+Init:
+					lxi sp, 0xFFFF  
+					mvi b, 33
+					push b			
+					mvi b, 0xFE
+					mvi c, 34
+					push b
+MainLoop:
+					pop b
+					dcr c
+					push b
+					push b
+					lxi h, 0x0800
+					call LoadString
+					call Delay
+					pop b
+					push b
+					pop d
+					pop b
+					dcr b
+					push b
+					push d
+					jnz MainLoop
+					jmp Init
+					hlt
+
+LoadString:
+					pop b
+					pop d
+					push b
+					push d
+					mvi d, 2
+					mov e, m
+					inx h
+					push d
+LoadLoop:
+					pop b
+					dcr c
+					jm EndLoad
+					pop d
+					dcr b
+					jp BeginDraw
+					mvi b, 2
+					dcr e
+					mvi d, 0xFE
+BeginDraw:
+					inr d
+					inr d
+					push d
+					push b
+					mvi b, 0b00000110
+					mov c, m
+					inx h
+					push b
+					push d
+					call LoadChar
+					jmp LoadLoop
+EndLoad:
+					pop d
+					ret
+
+LoadChar:
+					pop d
+					pop b
+					mov a, b
+					out 0x07
+					mov a, c
+					out 0x07
+					mvi a, 0x00
+					out 0x07
+					pop b
+					mov a, b
+					out 0x07
+					mov a, c
+					out 0x07
+					push d
+					ret
+
+Delay:
+					mvi a, 100
+					out 0x16
+					mvi a, 0
+DelayLoop:
+					in 0x16
+					cpi 0x00
+					jnz DelayLoop
+					ret
+
+.adr:0x0800
+.set:45
+
+.set:32
+.set:32
+.set:32
+
+.set:32
+.set:32
+.set:32
+
+.set:32
+.set:247
+.set:32
+
+.set:32
+.set:232
+.set:226
+
+.set:32
+.set:226
+.set:238
+
+.set:32
+.set:238
+.set:240
+
+.set:241
+.set:240
+.set:229
+
+.set:232
+.set:228
+.set:244
+
+.set:237
+.set:237
+.set:232
+
+.set:229
+.set:224
+.set:246
+
+.set:196
+.set:241
+.set:237
+
+.set:32
+.set:234
+.set:192
+
+.set:32
+.set:229
+.set:32
+
+.set:32
+.set:235
+.set:32
+
+.set:32
+.set:192
+.set:32

@@ -1,0 +1,4 @@
+{
+	"title": "Создать объявление",
+	"info": "<form id=\"create_form\" action=\"search_ads\" method=\"POST\">Название: <input type=\"text\" name=\"title_form\"><br /><button>Найти</button></form>"
+}

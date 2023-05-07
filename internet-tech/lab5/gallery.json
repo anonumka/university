@@ -1,0 +1,8 @@
+{ 
+   "gallery":"My dogs emoji collection",
+   "images":[
+      {"name":"Dogs mean: Sure?","file":"1.png"},
+      {"name":"Dogs mean: No","file":"2.png"},
+      {"name":"Dogs mean: Realy?","file":"3.png"}
+   ]
+}

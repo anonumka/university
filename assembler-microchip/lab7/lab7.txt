@@ -1,0 +1,125 @@
+.dseg
+.include "m32adef.inc"
+.def temp = r16
+.def cur_index = r17
+.def action = r18
+.def clk1 = r19
+
+.set size = 10 //размер оцифровок
+.org 0x60 //начальный адрес
+arr: .byte size
+
+.cseg
+.org 0x00 rjmp Init
+.org INT0addr rjmp P_INT0
+.org INT1addr rjmp P_INT1
+.org OVF0addr rjmp T_OWF
+.org ADCCaddr rjmp Init_ADC
+
+Init:
+	; stack init
+	ldi temp, low(RAMEND)
+	out SPL, temp
+	ldi temp, high(RAMEND)
+	out SPH, temp
+
+	; timer
+	clr temp
+	out TCCR0,	temp ; Стоп таймер
+
+	; set pin 7 on port A to input
+	in temp, DDRA
+	andi temp, ~(1<<7)
+	out DDRA, temp
+
+	; keys
+	ldi temp,	0b00001111
+	out MCUCR,	temp ; Через MCUCR установлены фронты (оба по нарастающему)
+	ldi temp,	0b11000000
+	out GICR,	temp ; Через GICR разрешены прерывания
+	sei
+
+	; set port B to output
+	ser temp
+	out DDRB, temp
+	out PORTB, temp
+
+	;  select 7 channel and left adjust res
+	ldi temp,(1<<ADLAR)|(1<<MUX2)|(1<<MUX1)|(1<<MUX0)
+	out ADMUX, temp
+
+	; Selecting a pre ne vlom pisat
+	ldi temp,(1<<ADEN)|(1<<ADIE)|(1<<ADPS0)|(1<<ADPS1)
+	out ADCSRA, temp
+	sei
+
+	; главная часть, где крутится программа
+	ldi action,		0b00000000			; Изначальный состояние - 0
+
+	ldi XL,			low(arr) // X
+	ldi XH,			high(arr)
+
+	MainLoop:
+		sbrc action, 0
+		call write
+		sbrc action, 1
+		call output
+	rjmp MainLoop
+
+	Init_ADC:
+		in r30, ADCL
+		in r31, ADCH
+		st x+, r31
+		out portb, r31
+		cbi ADCSRA, ADSC
+	reti
+
+	output:
+		ldi cur_index,	size
+		ldi XL,			low(arr) // X
+		ldi XH,			high(arr)
+
+		clr temp
+		out TCNT0, temp
+
+		ldi temp, (1<<TOIE0)				; прерывание по переполнению
+		out TIMSK, temp
+
+		clr temp
+		ldi temp, (1<<CS02)|(1<<CS00)		; предделитель на 1024
+		out TCCR0, temp
+
+		elems_cycle:
+		cpi action, 0x00					; выключение
+		brne elems_cycle
+	ret
+
+	write:
+		clr action
+		sbi ADCSRA, ADSC
+	ret
+
+	; Прерывание по кнопке sw2
+	P_INT0:									; Вывод элементов
+		ldi action, 0b00000010
+	reti
+
+	; Прерывание по кнопке sw3
+	P_INT1:									; Записать значение
+		ldi action, 0b00000001
+	reti
+
+	T_OWF:
+		ld temp, x+							; загрузить элемент массива С
+		out PORTB, temp						; вывести его на светодиоды
+
+		dec cur_index
+		breq t_elems_end 
+		reti
+
+		; Обновляем состояние регистров
+		t_elems_end:
+		clr temp							; выкл таймер
+		out TCCR0, temp
+		clr action
+	reti
